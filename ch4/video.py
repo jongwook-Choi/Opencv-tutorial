@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 
-
 def camera_in():
     """
     카메라 장치를 사용하는 함수
@@ -74,7 +73,52 @@ def video_in():
 
     cv2.destroyAllWindows()
 
+def camera_in_video_out():
+    """
+    카메라로 프레임을 받아와 반전 시킨 후,
+    동영상 파일로 저장 하는 함수
+    """
+    cap = cv2.VideoCapture(0)
+
+    if not cap.isOpened():
+        print('Camera open failed!')
+        return
+
+    w = round(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    h = round(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
+    # https://www.fourcc.org/codecs.php 참고
+    # DIVX: DivX MPEG-4 코덱
+    fourcc = cv2.VideoWriter_fourcc(*'DIVX') # *'DIVX' == 'D', 'I', 'V', 'X'
+    delay = round(1000 / fps)
+
+    outputVideo = cv2.VideoWriter('output.avi', fourcc, fps, (w, h))
+
+    if not outputVideo.isOpened():
+        print("File open failed!")
+        return
+
+    while True:
+        ret, frame = cap.read()
+
+        if not ret:
+            break
+
+        inversed = ~frame
+
+        outputVideo.write(inversed)
+
+        cv2.imshow('frame', frame)
+        cv2.imshow('inversed', inversed)
+
+        if cv2.waitKey(delay) == 27:
+            break
+
+    cv2.destroyAllWindows
+
 
 if __name__ == '__main__':
-    #camera_in()
-    video_in()
+    camera_in()
+    #video_in()
+    # amera_in_video_out()
